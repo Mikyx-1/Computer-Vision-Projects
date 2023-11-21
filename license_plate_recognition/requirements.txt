@@ -1,1 +1,7 @@
+PyQt5==5.15.9
+psutil==5.9.5
+tensorflow==2.11.0
+ultralytics==8.0.209
+opencv-python-headless==4.8.1.78
 
+## Do uninstall opencv-python because PyQt5 doesnt support it
