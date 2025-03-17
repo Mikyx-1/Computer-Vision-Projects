@@ -61,7 +61,6 @@ class SudokuDataset(Dataset):
     def __getitem__(self, idx):
         # For demonstration, use the fixed solved board.
         solved = np.array(Sudoku.generate_solved_board()) - 1
-        solved = np.where(solved == 0, 1, solved)
         input_board = solved.copy()
         # Create a boolean mask to mark masked positions
         mask = np.zeros((9, 9), dtype=bool)
