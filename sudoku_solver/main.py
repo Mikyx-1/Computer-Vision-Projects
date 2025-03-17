@@ -83,35 +83,28 @@ class SudokuDataset(Dataset):
 class SudokuSolver(nn.Module):
     def __init__(self, embed_dim=32):
         super(SudokuSolver, self).__init__()
-        # There are 10 tokens: 0-8 for digits and 9 for the mask.
         self.embedding = nn.Embedding(num_embeddings=10, embedding_dim=embed_dim)
-        # Convolutional layers to learn spatial relationships.
-        self.conv1 = nn.Conv2d(
-            in_channels=embed_dim, out_channels=256, kernel_size=3, padding=1
-        )
-        self.conv2 = nn.Conv2d(
-            in_channels=256, out_channels=256, kernel_size=3, padding=1
-        )
-        # Final layer: produce logits for 9 classes.
-        self.conv3 = nn.Conv2d(in_channels=256, out_channels=9, kernel_size=1)
 
-        self.softplus = nn.Softplus()
+        self.conv1 = nn.Conv2d(embed_dim, 256, kernel_size=3, padding=1)
+        self.conv2 = nn.Conv2d(256, 256, kernel_size=3, padding=1)
+        self.conv3 = nn.Conv2d(256, 256, kernel_size=3, padding=1)
+        self.conv4 = nn.Conv2d(256, 9, kernel_size=1)  # Final output layer
 
         self.bn1 = nn.BatchNorm2d(256)
         self.bn2 = nn.BatchNorm2d(256)
+        self.bn3 = nn.BatchNorm2d(256)
+
+        self.softplus = nn.Softplus()
 
     def forward(self, x):
-        # x: shape (batch_size, 9, 9) with integer tokens.
-        # Apply embedding: output shape becomes (batch_size, 9, 9, embed_dim)
-        x = self.embedding(x)
-        # Rearrange to (batch_size, embed_dim, 9, 9) for convolution.
-        x = x.permute(0, 3, 1, 2)
-        x = self.softplus(self.bn1(self.conv1(x)))
-        x = self.softplus(self.bn2(self.conv2(x)))
-        logits = self.conv3(
-            x
-        )  # Output shape: (batch_size, 9, 9, 9) in channels-first format: (B, 9, 9, 9) actually is (B, 9, 9, 9) with channels=9.
-        # For PyTorch's CrossEntropyLoss, expected input shape is (B, C, H, W).
+        x = self.embedding(x)  # Shape: (batch_size, 9, 9, embed_dim)
+        x = x.permute(0, 3, 1, 2)  # Shape: (batch_size, embed_dim, 9, 9)
+
+        x1 = self.softplus(self.bn1(self.conv1(x)))
+        x2 = self.softplus(self.bn2(self.conv2(x1))) + x1  # Residual connection
+        x3 = self.softplus(self.bn3(self.conv3(x2))) + x2  # Residual connection
+        logits = self.conv4(x3)  # Output shape: (batch_size, 9, 9, 9)
+
         return logits
 
 
