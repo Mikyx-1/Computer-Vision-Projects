@@ -11,7 +11,7 @@ class SudokuTrainer:
         self.solver = solver.to(self.device)
         self.dataset = dataset
         self.dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
-        self.criterion = nn.CrossEntropyLoss(reduction='none')
+        self.criterion = nn.CrossEntropyLoss(reduction="none")
         self.optimizer = optim.Adam(self.solver.parameters(), lr=lr)
         self.num_epochs = num_epochs
 
@@ -41,7 +41,9 @@ class SudokuTrainer:
 
     def log(self, epoch, total_loss, total_correct, total_masked):
         accuracy = total_correct / total_masked if total_masked > 0 else 0
-        print(f"Epoch {epoch+1}/{self.num_epochs}, Loss: {total_loss/len(self.dataloader):.4f}, Accuracy: {accuracy:.4f}")
+        print(
+            f"Epoch {epoch+1}/{self.num_epochs}, Loss: {total_loss/len(self.dataloader):.4f}, Accuracy: {accuracy:.4f}"
+        )
 
     def save_weights(self, path="sudoku_solver.pth"):
         torch.save(self.solver.state_dict(), path)
@@ -51,18 +53,21 @@ class SudokuTrainer:
 
     @staticmethod
     @torch.no_grad()
-    def calculate_accuracy(pred: torch.Tensor, target: torch.Tensor, mask: torch.Tensor) -> float:
+    def calculate_accuracy(
+        pred: torch.Tensor, target: torch.Tensor, mask: torch.Tensor
+    ) -> float:
         if pred.shape[1] > 1:
             # In case, output not processed
             pred = pred.argmax(dim=1)
 
-        correct = (pred==target)&mask
+        correct = (pred == target) & mask
         total_correct += correct.sum().item()
         total_masked += mask.sum().item()
 
-        accuracy = total_correct/total_masked if total_masked > 0 else 0
+        accuracy = total_correct / total_masked if total_masked > 0 else 0
 
         return accuracy
+
 
 # Initialize and train
 solver = SudokuSolver(embed_dim=128)

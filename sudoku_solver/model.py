@@ -4,20 +4,21 @@ import torch.optim as optim
 import torch.nn.functional as F
 import time
 
+
 class SudokuSolver(nn.Module):
     def __init__(self, embed_dim: int = 32) -> None:
         super(SudokuSolver, self).__init__()
         self.embedding = nn.Embedding(num_embeddings=10, embedding_dim=embed_dim)
-        
+
         self.conv1 = nn.Conv2d(embed_dim, 256, kernel_size=3, padding=1)
         self.conv2 = nn.Conv2d(256, 256, kernel_size=3, padding=1)
         self.conv3 = nn.Conv2d(256, 256, kernel_size=3, padding=1)
         self.conv4 = nn.Conv2d(256, 9, kernel_size=1)  # Final output layer
-        
+
         self.bn1 = nn.BatchNorm2d(256)
         self.bn2 = nn.BatchNorm2d(256)
         self.bn3 = nn.BatchNorm2d(256)
-        
+
         self.softplus = nn.Softplus()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
@@ -30,8 +31,8 @@ class SudokuSolver(nn.Module):
         logits = self.conv4(x3)  # Output shape: (batch_size, 9, 9, 9)
 
         return logits
-    
-    
+
+
 if __name__ == "__main__":
     model = SudokuSolver(embed_dim=64)
     sample = torch.randint(0, 10, (1, 9, 9))
