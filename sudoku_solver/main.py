@@ -49,6 +49,21 @@ class SudokuTrainer:
     def evaluate(self):
         pass  # Can be implemented for evaluation on a test set
 
+    @staticmethod
+    @torch.no_grad()
+    def calculate_accuracy(pred: torch.Tensor, target: torch.Tensor, mask: torch.Tensor) -> float:
+        if pred.shape[1] > 1:
+            # In case, output not processed
+            pred = pred.argmax(dim=1)
+
+        correct = (pred==target)&mask
+        total_correct += correct.sum().item()
+        total_masked += mask.sum().item()
+
+        accuracy = total_correct/total_masked if total_masked > 0 else 0
+
+        return accuracy
+
 # Initialize and train
 solver = SudokuSolver(embed_dim=128)
 dataset = SudokuDataset(num_samples=100, num_mask=2)
