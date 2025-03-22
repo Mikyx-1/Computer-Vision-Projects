@@ -50,6 +50,8 @@ Training is conducted using PyTorch on a CUDA-enabled GPU.
 python train.py
 ```
 
+By the way, the weight for the model can be downloaded [here][here].
+
 ---
 
 ## Inference
@@ -104,3 +106,4 @@ The model performs well on easier puzzles but struggles as the number of missing
 ---
 
 
+[here]: https://drive.google.com/file/d/1KoIHKHYjg0lAeDurKQDhcTOyVDe1zkYP/view?usp=sharing
